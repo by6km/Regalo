@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nuestro Log Pose hasta Milán</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<style>
+  :root {
+    --parchment: #ecdfbf;
+    --parchment-dark: #dcc99a;
+    --ink: #2b2418;
+    --navy: #1a2538;
+    --sea: #1e4d43;
+    --gold: #b8863b;
+    --rope: #6b4a2b;
+    --red-x: #a92e2e;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  
+  body {
+    margin: 0;
+    background-color: var(--parchment);
+    
+    /* FONDO DE ONE PIECE: 
+       Capa 1: Pergamino al 88% de opacidad para que se lea el texto.
+       Capa 2: URL de un mapa clásico de One Piece. */
+    background-image:
+      linear-gradient(rgba(236, 223, 191, 0.58), rgba(236, 223, 191, 0.58)),
+      url('https://external-preview.redd.it/mapa-del-mundo-de-one-piece-2021-v0-Q3xVLH20JFqFQuWs2zl0ccPoTjNzAnUow-uDfDZnT4o.jpg?auto=webp&s=fef1ccad9af85e4fe5aa2e6bdd416cb4a25d7fc7');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    
+    font-family: 'IM Fell English', serif;
+    color: var(--ink);
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+  
+  .wrap { max-width: 640px; margin: 0 auto; padding: 2.2rem 1.3rem 4rem; position: relative; }
+
+  header.hero { text-align: center; margin-bottom: 2.6rem; }
+  
+  /* ESTILOS DEL NUEVO LOGO CON EL FILTRO MÁGICO */
+  .hero-logo {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto 1.5rem;
+    display: block;
+    /* mix-blend-mode: multiply elimina el blanco (lo hace transparente). */
+    mix-blend-mode: multiply;
+    /* Al subir el contraste y brillo, los cuadritos grises se vuelven blancos y también desaparecen, 
+       dejando solo el logo impreso como si fuera tinta en el mapa. */
+    filter: contrast(1.6) brightness(1.15);
+  }
+
+  .hero p { font-size: 1.05rem; max-width: 33ch; margin: 0 auto; line-height: 1.5; color: #1a1610; font-weight: 600; }
+
+  /* Ruta del Grand Line */
+  .route { position: relative; padding-left: 0; margin-top: 2rem; }
+  .route::before {
+    content: '';
+    position: absolute;
+    top: 2rem; bottom: 6rem;
+    left: 2.6rem; 
+    width: 0;
+    border-left: 3px dashed var(--rope);
+    opacity: 0.7;
+    z-index: 0;
+  }
+
+  .island {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--parchment-dark);
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1.6rem;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+    z-index: 1;
+    box-shadow: 2px 4px 8px rgba(0,0,0,0.15);
+  }
+  .island:hover, .island:focus-visible { transform: translateY(-3px); box-shadow: 3px 6px 14px rgba(0,0,0,0.25); }
+  .island:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+  .island.done { opacity: 0.8; }
+  
+  /* Marca de Nakama (Alabasta) */
+  .island.done::after {
+    content: '✖';
+    position: absolute; top: 50%; right: 1.2rem;
+    transform: translateY(-50%) rotate(8deg);
+    color: var(--red-x); font-size: 2rem;
+    font-weight: bold;
+    opacity: 0.9;
+    text-shadow: 1px 1px 0 #fff;
+  }
+
+  .isle-icon {
+    font-size: 1.8rem;
+    width: 3rem; height: 3rem;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--parchment);
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    flex-shrink: 0;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+  }
+  .isle-text h2 { margin: 0 0 0.15rem; font-size: 1.25rem; color: var(--navy); font-style: italic; }
+  .isle-text p { margin: 0; font-size: 0.85rem; color: #3a3122; padding-right: 2rem; font-weight: 600; }
+
+  .treasure {
+    margin-top: 1rem;
+    text-align: center;
+    padding: 1.6rem 1.1rem;
+    border: 3px dashed var(--gold);
+    border-radius: 8px;
+    background: rgba(232, 185, 35, 0.2);
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+  }
+  .treasure .isle-icon { margin: 0 auto 0.7rem; width: 3.6rem; height: 3.6rem; font-size: 2.3rem; background: var(--parchment); border-color: var(--gold); }
+  .treasure h2 { margin: 0 0 0.3rem; font-style: italic; color: var(--ink); font-size: 1.5rem; }
+  .treasure p { margin: 0; font-size: 0.85rem; color: #1a1610; font-weight: 600; }
+  .treasure.locked { opacity: 0.7; cursor: not-allowed; border-color: rgba(43,36,24,0.4); background: var(--parchment-dark); box-shadow: none; }
+  .treasure.locked .isle-icon { border-color: rgba(43,36,24,0.4); filter: grayscale(100%); opacity: 0.5; }
+
+  /* Modal Estilo WANTED */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(15, 12, 6, 0.75);
+    display: none; align-items: center; justify-content: center;
+    padding: 1.2rem;
+    z-index: 50;
+  }
+  .overlay.open { display: flex; }
+  .card {
+    background: #e6d5aa;
+    border: 3px solid var(--ink);
+    border-radius: 4px;
+    max-width: 440px; width: 100%;
+    padding: 2.2rem 1.8rem 1.8rem;
+    position: relative;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.6);
+  }
+  .card::before {
+    content: ''; position: absolute; inset: 6px;
+    border: 1px solid var(--ink); pointer-events: none;
+  }
+  .card .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+  .card h3 { font-style: italic; color: var(--ink); font-size: 1.8rem; margin: 0 0 1rem; text-align: center; }
+  .card .msg { font-size: 1.05rem; line-height: 1.6; white-space: pre-line; color: #1a1610; font-weight: 600; }
+  .card .code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    background: var(--navy);
+    color: #d7e6df;
+    padding: 0.8rem 0.9rem;
+    border-radius: 4px;
+    margin-top: 0.9rem;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    border: 1px solid var(--ink);
+  }
+
+  /* Juegos */
+  .game-hint { font-size: 0.85rem; color: var(--ink); margin-bottom: 0.8rem; text-align: center; font-style: italic; font-weight: bold;}
+  .board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    max-width: 320px;
+    margin: 0 auto 0.9rem;
+    border: 3px solid var(--ink);
+  }
+  .sq { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; background: #e6d5aa; }
+  .sq.dark { background: #c5a878; }
+  .sq.sel { outline: 3px solid var(--gold); outline-offset: -3px; }
+  .feedback { font-size: 0.9rem; min-height: 1.3rem; margin-bottom: 0.6rem; color: var(--sea); text-align: center; font-weight: bold; }
+  .feedback.bad { color: var(--red-x); }
+  
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    background: var(--ink);
+    color: var(--parchment);
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    margin: 0.2rem 0.3rem 0.2rem 0;
+    transition: background 0.1s;
+    font-weight: bold;
+  }
+  .btn:hover { background: #3a3122; }
+  .btn.gold { background: var(--gold); border-color: #8c6426; color: #fff; }
+  .btn.gold:hover { background: #a47632; }
+
+  .hand { display: flex; gap: 0.5rem; justify-content: center; margin: 0.6rem 0; flex-wrap: wrap; }
+  .playing-card { width: 2.6rem; height: 3.7rem; border: 2px solid var(--ink); border-radius: 3px; background: #fbf6e9; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: bold; font-size: 0.95rem; color: var(--ink); }
+  .hand-label { text-align: center; font-size: 0.8rem; color: var(--ink); margin-bottom: 0.2rem; font-weight: bold; }
+  .rounds-log { font-size: 0.85rem; margin: 0.6rem 0; color: #1a1610; line-height: 1.5; text-align: center; }
+  .quiz-clue { font-size: 1rem; margin-bottom: 0.9rem; line-height: 1.5; text-align: center; font-weight: bold;}
+  .quiz-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+  .quiz-opts .btn { width: 100%; text-align: left; background: var(--parchment-dark); color: var(--ink); border-color: rgba(43,36,24,0.4); }
+  .quiz-opts .btn:hover { background: #c5a878; }
+  .quiz-opts .btn.correct { background: var(--sea); color: #fff; border-color: var(--sea); }
+  .quiz-opts .btn.wrong { background: var(--red-x); color: #fff; border-color: var(--red-x); }
+
+  .sq { font-size: 1.7rem; position: relative; line-height: 1; }
+  .pw { color: #fff; text-shadow: 0 0 2px #000, 0 0 2px #000, 0 0 1px #000; }
+  .pb { color: #1a1a1a; }
+  .sq.tgt::after { content: ''; position: absolute; width: 30%; height: 30%; border-radius: 50%; background: rgba(30,77,67,0.55); }
+  .playing-card { width: auto; min-width: 2.9rem; padding: 0 0.3rem; font-size: 0.8rem; }
+  .svgbox svg { width: 100%; border-radius: 4px; margin-bottom: 0.8rem; border: 2px solid var(--ink); }
+
+  .glass { width: 92px; height: 150px; border: 3px solid var(--ink); border-radius: 0 0 14px 14px; position: relative; overflow: hidden; margin: 0 auto 0.8rem; background: rgba(255,255,255,0.4); }
+  .liquid { position: absolute; bottom: 0; left: 0; right: 0; height: 0; background: #e0a526; }
+  .foam { position: absolute; top: -7px; left: 0; right: 0; height: 9px; background: #fff; border-radius: 4px 4px 0 0; }
+  .tband { position: absolute; left: 0; right: 0; background: rgba(30,77,67,0.3); border-top: 2px solid var(--sea); border-bottom: 2px solid var(--sea); pointer-events: none; }
+  .holdbtn { width: 100%; padding: 1rem; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; text-align: center; }
+
+  .close-btn { position: absolute; top: 0.8rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--ink); line-height: 1; padding: 0.3rem; z-index: 10; font-weight: bold; }
+
+  footer { text-align: center; margin-top: 2.5rem; font-size: 0.8rem; color: var(--ink); font-family: 'JetBrains Mono', monospace; font-weight: bold; opacity: 0.8; }
+
+  @media (prefers-reduced-motion: reduce) { .island { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    
+    <!-- Imagen que pasaste, reemplazando la calavera y los títulos -->
+    <img src="one_piece_titulo.jpg" alt="Nuestro One Piece" class="hero-logo">
+
+    <p>El Nuevo Mundo me pilla un poco lejos para cruzar el charco ahora mismo, así que te mando este mapa. Seis paradas, seis cosas nuestras. Ábrelas en orden, nakama.</p>
+  </header>
+
+  <div class="route" id="route">
+    <div class="island" data-id="sevilla" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">⚓</div>
+      <div class="isle-text">
+        <h2>Isla del Inicio</h2>
+        <p>Donde empieza nuestra aventura (Sevilla)</p>
+      </div>
+    </div>
+
+    <div class="island" data-id="cs" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">🐌</div>
+      <div class="isle-text">
+        <h2>Isla del Den Den Mushi</h2>
+        <p>Para el ciborg de la tripulación</p>
+      </div>
+    </div>
+
+    <div class="island" data-id="ajedrez" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">♟️</div>
+      <div class="isle-text">
+        <h2>Isla de la Estrategia</h2>
+        <p>Toca para abrir la primera jugada</p>
+      </div>
+    </div>
+
+    <div class="island" data-id="cerveza" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">🍻</div>
+      <div class="isle-text">
+        <h2>Isla de la Taberna</h2>
+        <p>Una buena jarra bien fría</p>
+      </div>
+    </div>
+
+    <div class="island" data-id="mus" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">🃏</div>
+      <div class="isle-text">
+        <h2>Isla de las Apuestas</h2>
+        <p>Aquí no vale ir de farol con el Haki</p>
+      </div>
+    </div>
+
+    <div class="island" data-id="milan" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">🧭</div>
+      <div class="isle-text">
+        <h2>Isla del Log Pose (Milán)</h2>
+        <p>El punto más lejano del mapa</p>
+      </div>
+    </div>
+
+    <div class="treasure locked" id="treasure" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">👑</div>
+      <h2>Nuestro propio One Piece</h2>
+      <p>Solo quien conquiste la ruta podrá abrirlo</p>
+    </div>
+  </div>
+
+  <footer><p>hecho a mano, byak · feliz día del novio</p>
+    <p>pd. no me hecho spoiler, no te preocupes<3</p>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="card" role="dialog" aria-modal="true">
+    <button class="close-btn" id="closeBtn" aria-label="Cerrar">✕</button>
+    <div class="tag" id="cardTag"></div>
+    <h3 id="cardTitle"></h3>
+    <div id="cardBody"></div>
+  </div>
+</div>
+
+<script>
+  const content = {
+    cerveza: {
+      tag: 'ISLA 4 · SAKE',
+      title: 'Salud, Nakama',
+      msg: 'Sabía que la caña bien tirada no se te iba a resistir.\n\nCuando vuelvas, la primera ronda va por mi cuenta. Y la segunda también, si me cuentas todo lo que has probado por Italia.\n\nMientras tanto, brindo por ti desde aquí, como unos buenos piratas. ¡Salud!'
+    },
+    sevilla: {
+      tag: 'ISLA 1 · SEVILLA',
+      title: 'Todo me recuerda a ti',
+      msg: 'Lo has acertado todo, como no podía ser de otra manera.\n\nY es que en Sevilla no hay rincón que no me recuerde a ti: los sitios donde hemos comido, los bares donde hemos brindado, el italiano de nuestra primera cita como novios y hasta mi cama, que ahora mismo está demasiado vacía.\n\nToda la ciudad me recuerda a ti. Y ahora sí, zarpamos hacia Milán.'
+    },
+    ajedrez: {
+      tag: 'ISLA 3 · JAQUE',
+      title: 'La apertura',
+      msg: 'Últimamente vives pegado al tablero, así que empiezo por ahí.\n\nCon el ajedrez cada partida se abre distinto pero el objetivo es siempre el mismo: llegar al rey. Contigo me pasa parecido — da igual el día que tengamos, la ciudad en la que estemos o el idioma en el que hablemos por videollamada, la jugada siempre acaba apuntando al mismo sitio: a ti.\n\nEsto no es jaque mate todavía. Sigue la ruta del Log Pose.'
+    },
+    mus: {
+      tag: 'ISLA 5 · ÓRDAGO',
+      title: 'Sin ir de farol',
+      msg: 'Sé que estás aprendiendo a jugar al mus, así que aquí va la verdad sin farol ninguno, ni Haki de observación:\n\nTe echo de menos. En serio, en serio. No como frase bonita, sino como esas tardes en las que miro el móvil sin darme cuenta esperando que me escribas.\n\nÓrdago a la felicidad: contigo, siempre lo igualo.'
+    },
+    milan: {
+      tag: 'ISLA 6 · COORDENADAS',
+      title: 'La isla más lejana',
+      msg: 'Milán queda lejos en el mapa, pero raramente lo siento tan lejos cuando hablamos.\n\nMe alegra un montón que estés viviendo esta aventura, conociendo la ciudad, aprendiendo cosas nuevas — aunque eso signifique más kilómetros entre los dos. Cuenta esto como una bandera pirata clavada en el mapa: aquí estuviste, aquí sigo pensando en ti todos los días.'
+    },
+    cs: {
+      tag: 'ISLA 2 · TERMINAL',
+      title: 'root@corazon',
+      msg: 'Ya que estudias informática, esta isla va en tu idioma (y seguro que Franky estaría orgulloso):',
+      code: '$ echo "cuanto te quiero" | wc -c\n> demasiado para un int\n\n$ ping nakama.milan\n> 1 paquete enviado, 1 paquete esperado\n> con muchísimas ganas de verte\n\n$ status\n> proceso "nosotros" — running, sin errores'
+    }
+  };
+
+  const overlay = document.getElementById('overlay');
+  const cardTag = document.getElementById('cardTag');
+  const cardTitle = document.getElementById('cardTitle');
+  const cardBody = document.getElementById('cardBody');
+  const treasure = document.getElementById('treasure');
+  const visited = new Set();
+
+  function setTag(t) { cardTag.textContent = t; }
+  function setTitle(t) { cardTitle.textContent = t; }
+
+  function showMessage(id) {
+    const c = content[id];
+    setTag(c.tag); setTitle(c.title);
+    let html = `<div class="msg">${c.msg}</div>`;
+    if (c.code) html += `<div class="code">${c.code}</div>`;
+    cardBody.innerHTML = html;
+  }
+
+  function markDone(id) {
+    if (visited.has(id)) return;
+    visited.add(id);
+    document.querySelector(`.island[data-id="${id}"]`).classList.add('done');
+    if (visited.size === Object.keys(content).length) {
+      treasure.classList.remove('locked');
+      treasure.querySelector('p').textContent = 'Toca para descubrir el One Piece';
+    }
+  }
+
+  function openOverlay() { overlay.classList.add('open'); }
+  function closeCard() { overlay.classList.remove('open'); }
+  document.getElementById('closeBtn').addEventListener('click', closeCard);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCard(); });
+
+  /* ---------- AJEDREZ ---------- */
+  const GL = { p: '♟', n: '♞', b: '♝', r: '♜', q: '♛', k: '♚' };
+  let chessG = null;
+  function botPick(g) {
+    const ms = g.moves({ verbose: true });
+    if (Math.random() < 0.2) return ms[Math.floor(Math.random() * ms.length)];
+    const V = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+    let best = ms[0], bs = -1e9;
+    for (const m of ms) {
+      g.move({ from: m.from, to: m.to, promotion: m.promotion });
+      let s = 0;
+      if (g.in_checkmate()) s = 1000;
+      else {
+        if (m.captured) s += V[m.captured];
+        if (m.promotion) s += 8;
+        if (g.in_check()) s += 0.5;
+        if (Math.random() < 0.6 && g.moves({ verbose: true }).some(x => x.to === m.to && x.captured)) s -= V[m.piece];
+      }
+      g.undo();
+      s += Math.random() * 2.5;
+      if (s > bs) { bs = s; best = m; }
+    }
+    return best;
+  }
+  function openChess() {
+    setTag('ISLA 3 · RETO'); setTitle('Derrota al Marine');
+    if (typeof Chess === 'undefined') {
+      cardBody.innerHTML = '<div class="msg">No se pudo cargar el motor de ajedrez. Recarga la página con conexión.</div>';
+      return openOverlay();
+    }
+    if (!chessG || chessG.game_over()) chessG = new Chess();
+    const g = chessG;
+    let sel = null, fb = 'Juegas con blancas. ¡Tu turno!', bad = false;
+    const won = () => g.in_checkmate() && g.turn() === 'b';
+    const addBtn = (t, f, gold) => { const b = document.createElement('button'); b.className = 'btn' + (gold ? ' gold' : ''); b.textContent = t; b.onclick = f; cardBody.appendChild(b); };
+    function draw() {
+      if (cardTitle.textContent !== 'Derrota al Marine') return;
+      const bd = g.board(), tg = sel ? g.moves({ square: sel, verbose: true }).map(m => m.to) : [];
+      cardBody.innerHTML = `<div class="game-hint">Marine raso (~800 ELO). Hay que ganar para desbloquear el mensaje.</div><div class="board"></div><div class="feedback${bad ? ' bad' : ''}">${fb}</div>`;
+      const board = cardBody.querySelector('.board');
+      for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+        const sq = 'abcdefgh'[c] + (8 - r), p = bd[r][c], d = document.createElement('div');
+        d.className = 'sq' + ((r + c) % 2 ? ' dark' : '') + (sq === sel ? ' sel' : '') + (tg.includes(sq) ? ' tgt' : '');
+        if (p) d.innerHTML = `<span class="${p.color === 'w' ? 'pw' : 'pb'}">${GL[p.type]}</span>`;
+        d.onclick = () => tap(sq);
+        board.appendChild(d);
+      }
+      if (g.game_over()) {
+        if (won()) addBtn('Ver mensaje', () => { markDone('ajedrez'); showMessage('ajedrez'); }, 1);
+        else addBtn('Revancha', () => { chessG = null; openChess(); }, 1);
+      }
+    }
+    function end() {
+      bad = !won();
+      fb = won() ? '¡Jaque mate! Has derrotado al Marine.' : g.in_checkmate() ? 'El Marine te ha derrotado.' : 'Tablas.';
+      draw();
+    }
+    function tap(sq) {
+      if (g.turn() !== 'w' || g.game_over()) return;
+      const p = g.get(sq);
+      if (sel && g.moves({ square: sel, verbose: true }).some(m => m.to === sq)) {
+        g.move({ from: sel, to: sq, promotion: 'q' }); sel = null; bad = false;
+        if (g.game_over()) return end();
+        fb = 'El Marine piensa…'; draw(); setTimeout(botTurn, 600); return;
+      }
+      sel = (p && p.color === 'w') ? sq : null; draw();
+    }
+    function botTurn() {
+      if (chessG !== g || g.game_over()) return;
+      const m = botPick(g);
+      g.move({ from: m.from, to: m.to, promotion: m.promotion });
+      if (g.game_over()) return end();
+      bad = g.in_check(); fb = bad ? '¡Estás en jaque!' : 'Tu turno.'; draw();
+    }
+    draw(); openOverlay();
+  }
+
+  /* ---------- MUS ---------- */
+  const MT = 20, NAMES = ['Tú', 'Marine 1', 'Tu compi', 'Marine 2'], LN = ['Grande', 'Chica', 'Pares', 'Juego'];
+  const RK = { 12: 8, 3: 8, 11: 7, 10: 6, 7: 5, 6: 4, 5: 3, 4: 2, 1: 1, 2: 1 };
+  const PT = v => (v >= 10 || v === 3) ? 10 : (v === 2 ? 1 : v);
+  const JO = [31, 32, 40, 37, 36, 35, 34, 33];
+  const cl = v => v === 12 ? 'Rey' : v === 11 ? 'Cab' : v === 10 ? 'Sota' : v === 1 ? 'As' : String(v);
+  const SU = ['🪙', '🍷', '⚔️', '🌿'];
+  const lab = c => cl(c.v) + SU[c.s];
+  const rks = h => h.map(c => RK[c.v]);
+  const tot = h => h.reduce((a, c) => a + PT(c.v), 0);
+  function par(h) {
+    const g = {}; rks(h).forEach(r => g[r] = (g[r] || 0) + 1);
+    const a = Object.entries(g).map(([r, n]) => ({ r: +r, n })).sort((x, y) => y.n - x.n || y.r - x.r);
+    if (a[0].n === 4) return { l: 3, k: [3, a[0].r, a[0].r] };
+    if (a[0].n === 3) return { l: 2, k: [2, a[0].r] };
+    if (a[0].n === 2) return a[1] && a[1].n === 2 ? { l: 3, k: [3, a[0].r, a[1].r] } : { l: 1, k: [1, a[0].r] };
+    return { l: 0, k: [0] };
+  }
+  function key(L, h) {
+    if (L === 0) return rks(h).sort((a, b) => b - a);
+    if (L === 1) return rks(h).sort((a, b) => a - b).map(r => -r);
+    if (L === 2) return par(h).k;
+    const t = tot(h); return t >= 31 ? [100 - JO.indexOf(t)] : [t];
+  }
+  const cmp = (a, b) => { for (let i = 0; i < Math.max(a.length, b.length); i++) { const d = (a[i] || 0) - (b[i] || 0); if (d) return d; } return 0; };
+  function strn(L, h) {
+    const av = rks(h).reduce((a, b) => a + b) / 4;
+    if (L === 0) return av / 8;
+    if (L === 1) return (9 - av) / 8;
+    if (L === 2) return par(h).l / 3;
+    const t = tot(h); return t >= 31 ? (t === 31 ? 1 : 0.8) : t / 45;
+  }
+  function deal() {
+    const d = [];
+    for (let s = 0; s < 4; s++) [1, 2, 3, 4, 5, 6, 7, 10, 11, 12].forEach(v => d.push({ v, s }));
+    for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; }
+    return [0, 1, 2, 3].map(p => d.slice(p * 4, p * 4 + 4));
+  }
+  let mus = null;
+  function openMus() {
+    setTag('ISLA 5 · RETO'); setTitle('Partida de mus');
+    if (!mus || mus.over) { mus = { s: [0, 0], mano: Math.floor(Math.random() * 4), log: [], over: false }; musHand(); }
+    else musUI(...mus.last);
+    openOverlay();
+  }
+  function musUI(info, btns) {
+    const m = mus; m.last = [info, btns];
+    cardBody.innerHTML = `
+      <div class="game-hint">Tu tripulación contra 2 Marines · a ${MT} piedras · mano: ${NAMES[m.mano]}</div>
+      <div class="hand-label">Tu mano · Vosotros ${m.s[0]} — Marines ${m.s[1]}</div>
+      <div class="hand">${m.h[0].map(c => `<div class="playing-card">${lab(c)}</div>`).join('')}</div>
+      <div class="rounds-log">${m.log.slice(-5).join('<br>')}</div>
+      <div class="feedback">${info}</div><div id="mb" style="text-align:center;"></div>`;
+    btns.forEach(([t, f, gold]) => { const b = document.createElement('button'); b.className = 'btn' + (gold ? ' gold' : ''); b.textContent = t; b.onclick = f; document.getElementById('mb').appendChild(b); });
+  }
+  function musHand() {
+    mus.h = deal(); mus.li = 0;
+    mus.log.push('— Nueva mano. Es mano: ' + NAMES[mus.mano] + ' —');
+    musLance();
+  }
+  function musOver(t) {
+    mus.over = true;
+    const w = t === 0;
+    mus.log.push(w ? '🏆 ¡Derrotáis a los Marines!' : 'Los Marines ganan la partida.');
+    musUI(w ? '¡Victoria!' : 'Los Marines te han arrestado.', [w ? ['Ver mensaje', () => { markDone('mus'); showMessage('mus'); }, 1] : ['Revancha', () => { mus = null; openMus(); }, 1]]);
+  }
+  function musLance() {
+    const m = mus;
+    if (m.li > 3) { m.mano = (m.mano + 1) % 4; return musUI('Fin de la mano.', [['Siguiente mano', musHand, 1]]); }
+    const L = m.li; let nm = LN[L], part = [0, 1, 2, 3];
+    if (L === 2) part = part.filter(p => par(m.h[p]).l > 0);
+    if (L === 3) { const j = part.filter(p => tot(m.h[p]) >= 31); if (j.length) part = j; else nm = 'Punto'; }
+    const ts = [...new Set(part.map(p => p % 2))];
+    if (!ts.length) { m.log.push(nm + ': nadie tiene.'); m.li++; return musLance(); }
+    const ord = [0, 1, 2, 3].map(i => (m.mano + i) % 4).filter(p => part.includes(p));
+    const win = ord.reduce((b, p) => cmp(key(L, m.h[p]), key(L, m.h[b])) > 0 ? p : b, ord[0]);
+    const wt = win % 2;
+    const base = () => L < 2 ? 1 : L === 2 ? part.filter(p => p % 2 === wt).reduce((a, p) => a + par(m.h[p]).l, 0) : (nm === 'Punto' ? 1 : (tot(m.h[win]) === 31 ? 3 : 2));
+    const reveal = () => 'Manos: ' + [0, 1, 2, 3].map(p => NAMES[p] + ' ' + m.h[p].map(lab).join(' ')).join(' | ');
+    const done = (team, pts, txt, show) => {
+      m.s[team] = Math.min(MT, m.s[team] + pts);
+      m.log.push(`${nm}: ${txt} (+${pts} ${team === 0 ? 'vosotros' : 'ellos'})`);
+      if (show) m.log.push(reveal());
+      if (m.s[team] >= MT) return musOver(team);
+      m.li++; musUI(`${nm}: ${txt}.`, [['Siguiente', musLance, 1]]);
+    };
+    const sd = ext => done(wt, base() + ext, `${wt === 0 ? 'ganáis' : 'ganan los Marines'}${ext ? ' con envite' : ''}`, 1);
+    const ordago = () => { m.log.push(nm + ': ¡ÓRDAGO aceptado!'); m.log.push(reveal()); m.s[wt] = MT; musOver(wt); };
+    if (ts.length === 1) return done(ts[0], base(), ts[0] === 0 ? 'solo vosotros tenéis' : 'solo ellos tienen', 0);
+    const rs = x => Math.max(...part.filter(p => p % 2 === 1).map(p => strn(L, m.h[p]))) + (Math.random() - 0.5) * x;
+    const humanBets = kind => {
+      if (kind === 'o') return rs(0.6) > 0.8 ? ordago() : done(0, 1, 'los Marines se echan atrás');
+      return rs(0.7) > 0.5 ? sd(2) : done(0, 1, 'los Marines se echan atrás');
+    };
+    const humanResp = kind => musUI(kind === 'o' ? '¡Los Marines lanzan un ÓRDAGO!' : 'Los Marines envidan 2. ¿Qué haces?', [
+      ['Quiero', () => kind === 'o' ? ordago() : sd(2), 1],
+      ['No quiero', () => done(1, 1, 'no quieres')],
+      ...(kind === 'e' ? [['Órdago', () => humanBets('o')]] : [])
+    ]);
+    const rivalDecide = () => { const s = rs(0.8); return (s > 1.05 && Math.random() < 0.2) ? 'o' : s > 0.75 ? 'e' : null; };
+    const humanTurn = afterPass => musUI(`${nm}: ¿qué haces?`, [
+      ['Paso', () => { if (afterPass) return sd(0); const k = rivalDecide(); k ? humanResp(k) : sd(0); }, 1],
+      ['Envido 2', () => humanBets('e')],
+      ['Órdago', () => humanBets('o')]
+    ]);
+    if (ord[0] % 2 === 0) humanTurn(false);
+    else { const k = rivalDecide(); k ? humanResp(k) : humanTurn(true); }
+  }
+
+  /* ---------- MILÁN ---------- */
+  const sky = '<rect width="200" height="120" fill="#bcd3e0"/>';
+  const SC = [
+    () => `<svg viewBox="0 0 200 120">${sky}<rect y="104" width="200" height="16" fill="#c9b99a"/><polygon points="38,104 38,58 100,34 162,58 162,104" fill="#f1ece4" stroke="#8b8577"/>${[48, 66, 84, 100, 116, 134, 152].map(x => `<polygon points="${x - 3},60 ${x},22 ${x + 3},60" fill="#e6dfd1" stroke="#8b8577"/>`).join('')}<path d="M90,104 V84 a10,10 0 0 1 20,0 V104Z" fill="#6b6255"/></svg>`,
+    () => `<svg viewBox="0 0 200 120"><rect width="200" height="120" fill="#d9c9a3"/><path d="M45,120 V50 A55,55 0 0 1 155,50 V120Z" fill="#2b3a55" stroke="#6b4a2b" stroke-width="3"/><path d="M60,120 V55 A40,40 0 0 1 140,55 V120Z" fill="#8fb1d1" opacity=".55"/>${[0, 1, 2].map(i => `<rect x="${52 + i * 34}" y="70" width="12" height="20" fill="#d9c9a3"/>`).join('')}<rect y="108" width="200" height="12" fill="#b8863b"/></svg>`,
+    () => `<svg viewBox="0 0 200 120">${sky}<rect x="25" y="62" width="150" height="46" fill="#a5533a"/>${Array.from({ length: 10 }, (_, i) => `<rect x="${25 + i * 15}" y="55" width="8" height="8" fill="#a5533a"/>`).join('')}<rect x="84" y="24" width="32" height="84" fill="#b0603f"/><polygon points="80,26 100,4 120,26" fill="#6b3a2a"/><path d="M92,108 V88 a8,8 0 0 1 16,0 V108Z" fill="#3a2418"/></svg>`,
+    () => `<svg viewBox="0 0 200 120">${sky}<ellipse cx="100" cy="78" rx="82" ry="30" fill="#b9b9b9" stroke="#6d6d6d" stroke-width="2"/><ellipse cx="100" cy="76" rx="56" ry="17" fill="#4b8a4b"/>${[22, 178].map(x => `<rect x="${x - 4}" y="30" width="8" height="60" fill="#8a8a8a"/><rect x="${x - 7}" y="26" width="14" height="6" fill="#d6d6d6"/>`).join('')}<rect x="0" y="106" width="200" height="14" fill="#9aa86e"/></svg>`
+  ];
+  const milanQuiz = [
+    { i: 0, opts: ['Duomo di Milano', 'Castello Sforzesco', 'San Siro', 'Navigli'], a: 0 },
+    { i: 1, opts: ['Cimitero Monumentale', 'Galleria Vittorio Emanuele II', 'Pinacoteca di Brera', 'Parco Sempione'], a: 1 },
+    { i: 2, opts: ['Castello Sforzesco', 'Basilica di Sant’Ambrogio', 'Torre Velasca', 'Stazione Centrale'], a: 0 },
+    { i: 3, opts: ['Arco della Pace', 'San Siro', 'Darsena', 'Brera'], a: 1 }
+  ];
+  function openMilan() {
+    let i = 0, score = 0;
+    setTag('ISLA 6 · RETO'); setTitle('Navegando por Milán');
+    function renderQ() {
+      const q = milanQuiz[i];
+      cardBody.innerHTML = `
+        <div class="game-hint">Foto ${i + 1} de ${milanQuiz.length} · ¿qué sitio de Milán es?</div>
+        <div class="svgbox">${SC[q.i]()}</div>
+        <div class="quiz-opts" id="opts"></div>`;
+      const optsEl = document.getElementById('opts');
+      q.opts.forEach((opt, idx) => {
+        const b = document.createElement('button');
+        b.className = 'btn'; b.textContent = opt;
+        b.addEventListener('click', () => {
+          [...optsEl.children].forEach(c => c.disabled = true);
+          if (idx === q.a) { b.classList.add('correct'); score++; }
+          else { b.classList.add('wrong'); optsEl.children[q.a].classList.add('correct'); }
+          const next = document.createElement('button');
+          next.className = 'btn gold'; next.style.marginTop = '1rem';
+          next.style.width = '100%';
+          next.textContent = i === milanQuiz.length - 1 ? 'Ver resultado' : 'Siguiente';
+          next.addEventListener('click', () => { i++; i < milanQuiz.length ? renderQ() : renderResult(); });
+          cardBody.appendChild(next);
+        });
+        optsEl.appendChild(b);
+      });
+    }
+    function renderResult() {
+      cardBody.innerHTML = `
+        <div class="game-hint" style="font-size: 1.1rem;">Acertaste ${score} de ${milanQuiz.length}.</div>
+        <button class="btn gold" style="width:100%; margin-top:1rem;" id="revealMilan">Ver mensaje</button>`;
+      document.getElementById('revealMilan').addEventListener('click', () => { markDone('milan'); showMessage('milan'); });
+    }
+    renderQ();
+    openOverlay();
+  }
+
+  /* ---------- SEVILLA ---------- */
+  const sevRounds = [
+    { q: 'Ronda 1 · Elige el mejor restaurante', opts: ['Zhen Bao', 'La Voltereta', 'La Pulchra', 'Patio San Eloy'], a: 0 },
+    { q: 'Ronda 2 · Elige el mejor bar para tomar algo', opts: ['El Seto', 'Aljibe', 'Annunakis', 'Marbella'], a: 2 },
+    { q: 'Ronda 3 · ¿El italiano de nuestra primera cita de novios?', opts: ['Ricca Pizzeria', 'Pastissimo', 'DITALY', 'Alimentari e Diversi'], a: 3 },
+    { q: 'Ronda 4 · ¿Dónde quiero que estés ahora mismo?', opts: ['Las Setas', 'El puente de Triana', 'La Alameda', 'Mi cama'], a: 3 }
+  ];
+  function openSevilla() {
+    let i = 0;
+    setTag('ISLA 1 · RETO'); setTitle('Lo mejor de Sevilla');
+    function renderQ() {
+      const q = sevRounds[i];
+      cardBody.innerHTML = `
+        <div class="game-hint">Ronda ${i + 1} de ${sevRounds.length}</div>
+        <div class="quiz-clue">${q.q}</div>
+        <div class="quiz-opts" id="opts"></div>
+        <div class="feedback" id="sevFb"></div>`;
+      const optsEl = document.getElementById('opts'), fb = document.getElementById('sevFb');
+      q.opts.forEach((opt, idx) => {
+        const b = document.createElement('button');
+        b.className = 'btn'; b.textContent = opt;
+        b.addEventListener('click', () => {
+          if (idx !== q.a) { b.classList.add('wrong'); b.disabled = true; fb.textContent = 'Mmm, esa no. Prueba otra.'; fb.className = 'feedback bad'; return; }
+          [...optsEl.children].forEach(c => c.disabled = true);
+          b.classList.add('correct'); fb.textContent = '¡Correcto!'; fb.className = 'feedback';
+          const next = document.createElement('button');
+          next.className = 'btn gold'; next.style.marginTop = '0.4rem';
+          next.style.width = '100%';
+          next.textContent = i === sevRounds.length - 1 ? 'Ver mensaje' : 'Siguiente';
+          next.addEventListener('click', () => {
+            if (i === sevRounds.length - 1) { markDone('sevilla'); showMessage('sevilla'); }
+            else { i++; renderQ(); }
+          });
+          cardBody.appendChild(next);
+        });
+        optsEl.appendChild(b);
+      });
+    }
+    renderQ();
+    openOverlay();
+  }
+
+  /* ---------- CERVEZA ---------- */
+  function openBeer() {
+    setTag('ISLA 4 · RETO'); setTitle('La caña perfecta');
+    let streak = 0, level = 0, raf = null, last = 0, holding = false, busy = false, target = 80;
+    cardBody.innerHTML = `
+      <div class="game-hint">Mantén pulsado para servir y suelta con el nivel dentro de la franja verde. 3 seguidas para ganar.</div>
+      <div class="glass"><div class="tband" id="tband"></div><div class="liquid" id="liq"><div class="foam"></div></div></div>
+      <div class="feedback" id="beerFb">Seguidas: 0/3</div>
+      <button class="btn gold holdbtn" id="holdBtn">Mantén pulsado para servir</button>`;
+    const liq = document.getElementById('liq'), tband = document.getElementById('tband'), fb = document.getElementById('beerFb'), btn = document.getElementById('holdBtn');
+    function newTarget() { target = 70 + Math.floor(Math.random() * 21); tband.style.bottom = (target - 4) + '%'; tband.style.height = '8%'; }
+    function draw() { liq.style.height = level + '%'; }
+    function tick(t) {
+      if (!holding) return;
+      level += 55 * (t - last) / 1000; last = t;
+      if (level >= 100) { level = 100; draw(); return release(); }
+      draw(); raf = requestAnimationFrame(tick);
+    }
+    function start(e) { if (busy || holding) return; e.preventDefault(); holding = true; last = performance.now(); raf = requestAnimationFrame(tick); }
+    function release() {
+      if (!holding) return;
+      holding = false; cancelAnimationFrame(raf); busy = true;
+      if (level >= 100) { streak = 0; fb.textContent = '¡Se ha derramado! Seguidas: 0/3'; fb.className = 'feedback bad'; }
+      else if (Math.abs(level - target) <= 4) {
+        streak++; fb.className = 'feedback';
+        if (streak >= 3) {
+          fb.textContent = '¡Tres cañas perfectas!';
+          btn.replaceWith(Object.assign(document.createElement('button'), { className: 'btn gold', style: 'width:100%', textContent: 'Ver mensaje', onclick: () => { markDone('cerveza'); showMessage('cerveza'); } }));
+          return;
+        }
+        fb.textContent = `¡Perfecta! Seguidas: ${streak}/3`;
+      } else { streak = 0; fb.textContent = (level < target ? 'Te has quedado corto' : 'Te has pasado') + '. Seguidas: 0/3'; fb.className = 'feedback bad'; }
+      setTimeout(() => { level = 0; draw(); newTarget(); busy = false; }, 900);
+    }
+    btn.addEventListener('pointerdown', start);
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, release));
+    btn.addEventListener('contextmenu', e => e.preventDefault());
+    newTarget(); draw(); openOverlay();
+  }
+
+  document.querySelectorAll('.island').forEach(el => {
+    el.addEventListener('click', () => open(el.dataset.id));
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(el.dataset.id); } });
+  });
+
+  function open(id) {
+    if (visited.has(id)) { showMessage(id); openOverlay(); return; }
+    if (id === 'sevilla') return openSevilla();
+    if (id === 'ajedrez') return openChess();
+    if (id === 'cerveza') return openBeer();
+    if (id === 'mus') return openMus();
+    if (id === 'milan') return openMilan();
+    markDone(id); showMessage(id); openOverlay();
+  }
+
+  const treasureOpen = () => {
+    if (treasure.classList.contains('locked')) {
+      setTag('TESORO · BLOQUEADO'); setTitle('Todavía no');
+      cardBody.innerHTML = `<div class="msg">Completa todas las islas primero. Este Log Pose está calibrado para recorrerse entero, no a saltos.</div>`;
+      openOverlay();
+      return;
+    }
+    setTag('3 OCTUBRE · DÍA DEL NOVIO'); setTitle('El One Piece');
+    cardBody.innerHTML = `<div class="msg">Si has llegado hasta aquí es porque te has tomado el tiempo de recorrer todo el mapa (y de ganarle a los Marines), y eso ya dice mucho de ti.\n\nMe encantaría poder abrazarte hoy en vez de mandarte una página web, pero mientras tanto esto es lo mejor que se me ha ocurrido: un mapa que empieza en Sevilla y termina en Milán, con una casilla para cada cosa que me gusta de nosotros.\n\nFeliz día del novio. Cuenta los días conmigo — quedan menos de los que crees para volver a vernos.\n\nTe quiero.</div>`;
+    openOverlay();
+  };
+  treasure.addEventListener('click', treasureOpen);
+  treasure.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); treasureOpen(); } });
+</script>
+</body>
+</html>
