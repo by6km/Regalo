@@ -235,6 +235,16 @@
   .sq.tgt::after { content: ''; position: absolute; width: 30%; height: 30%; border-radius: 50%; background: rgba(30,77,67,0.55); }
   .playing-card { width: auto; min-width: 2.9rem; padding: 0 0.3rem; font-size: 0.8rem; }
   .svgbox svg { width: 100%; border-radius: 4px; margin-bottom: 0.8rem; border: 2px solid var(--ink); }
+  .svgbox img { 
+    width: 100%; 
+    max-width: 260px; 
+    max-height: 260px; 
+    margin: 0 auto 1rem; 
+    object-fit: cover; 
+    border-radius: 4px; 
+    border: 2px solid var(--ink); 
+    display: block; 
+  }
 
   .glass { width: 92px; height: 150px; border: 3px solid var(--ink); border-radius: 0 0 14px 14px; position: relative; overflow: hidden; margin: 0 auto 0.8rem; background: rgba(255,255,255,0.4); }
   .liquid { position: absolute; bottom: 0; left: 0; right: 0; height: 0; background: #e0a526; }
@@ -586,16 +596,16 @@
   /* ---------- MILÁN ---------- */
   const sky = '<rect width="200" height="120" fill="#bcd3e0"/>';
   const SC = [
-    () => `<svg viewBox="0 0 200 120">${sky}<rect y="104" width="200" height="16" fill="#c9b99a"/><polygon points="38,104 38,58 100,34 162,58 162,104" fill="#f1ece4" stroke="#8b8577"/>${[48, 66, 84, 100, 116, 134, 152].map(x => `<polygon points="${x - 3},60 ${x},22 ${x + 3},60" fill="#e6dfd1" stroke="#8b8577"/>`).join('')}<path d="M90,104 V84 a10,10 0 0 1 20,0 V104Z" fill="#6b6255"/></svg>`,
-    () => `<svg viewBox="0 0 200 120"><rect width="200" height="120" fill="#d9c9a3"/><path d="M45,120 V50 A55,55 0 0 1 155,50 V120Z" fill="#2b3a55" stroke="#6b4a2b" stroke-width="3"/><path d="M60,120 V55 A40,40 0 0 1 140,55 V120Z" fill="#8fb1d1" opacity=".55"/>${[0, 1, 2].map(i => `<rect x="${52 + i * 34}" y="70" width="12" height="20" fill="#d9c9a3"/>`).join('')}<rect y="108" width="200" height="12" fill="#b8863b"/></svg>`,
-    () => `<svg viewBox="0 0 200 120">${sky}<rect x="25" y="62" width="150" height="46" fill="#a5533a"/>${Array.from({ length: 10 }, (_, i) => `<rect x="${25 + i * 15}" y="55" width="8" height="8" fill="#a5533a"/>`).join('')}<rect x="84" y="24" width="32" height="84" fill="#b0603f"/><polygon points="80,26 100,4 120,26" fill="#6b3a2a"/><path d="M92,108 V88 a8,8 0 0 1 16,0 V108Z" fill="#3a2418"/></svg>`,
-    () => `<svg viewBox="0 0 200 120">${sky}<ellipse cx="100" cy="78" rx="82" ry="30" fill="#b9b9b9" stroke="#6d6d6d" stroke-width="2"/><ellipse cx="100" cy="76" rx="56" ry="17" fill="#4b8a4b"/>${[22, 178].map(x => `<rect x="${x - 4}" y="30" width="8" height="60" fill="#8a8a8a"/><rect x="${x - 7}" y="26" width="14" height="6" fill="#d6d6d6"/>`).join('')}<rect x="0" y="106" width="200" height="14" fill="#9aa86e"/></svg>`
+    () => `<img src="duomo.jpeg" alt="Duomo di Milano">`,
+    () => `<img src="https://pohcdn.com/sites/default/files/styles/paragraph__hero_banner__hb_image__1880bp/public/hero_banner/Gallery-of-Victor-Emmanuel-II.jpg" alt="Galleria Vittorio Emanuele II">`,
+    () => `<img src="https://tse3.mm.bing.net/th/id/OIP.yyi5pgQQHIBw9xKADVoq8wHaFR?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Castello Sforzesco">`,
+    () => `<img src="lago.jpeg" alt="Lago di Como">`
   ];
   const milanQuiz = [
     { i: 0, opts: ['Duomo di Milano', 'Castello Sforzesco', 'San Siro', 'Navigli'], a: 0 },
     { i: 1, opts: ['Cimitero Monumentale', 'Galleria Vittorio Emanuele II', 'Pinacoteca di Brera', 'Parco Sempione'], a: 1 },
     { i: 2, opts: ['Castello Sforzesco', 'Basilica di Sant’Ambrogio', 'Torre Velasca', 'Stazione Centrale'], a: 0 },
-    { i: 3, opts: ['Arco della Pace', 'San Siro', 'Darsena', 'Brera'], a: 1 }
+    { i: 3, opts: ['Arco della Pace', 'Lago di Como', 'Darsena', 'Brera'], a: 1 }
   ];
   function openMilan() {
     let i = 0, score = 0;
