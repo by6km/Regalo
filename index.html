@@ -302,6 +302,14 @@
       </div>
     </div>
 
+    <div class="island" data-id="piece" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">🏴‍☠️</div>
+      <div class="isle-text">
+        <h2>Isla de la Pieza</h2>
+        <p>El ladrón imitador</p>
+      </div>
+    </div>
+
     <div class="island" data-id="mus" tabindex="0" role="button" aria-haspopup="dialog">
       <div class="isle-icon">🃏</div>
       <div class="isle-text">
@@ -346,6 +354,11 @@
       title: 'Salud, Nakama',
       msg: 'Sabía que la caña bien tirada no se te iba a resistir.\n\nCuando vuelvas, la primera ronda va por mi cuenta. Y la segunda también, si me cuentas todo lo que has probado por Italia.\n\nMientras tanto, brindo por ti desde aquí, como unos buenos piratas. ¡Salud!'
     },
+    pieza: {
+      tag: 'ISLA 5 · ARTE',
+      title: 'El ladrón',
+      msg: ''
+    },
     sevilla: {
       tag: 'ISLA 1 · SEVILLA',
       title: 'Todo me recuerda a ti',
@@ -357,12 +370,12 @@
       msg: 'Últimamente vives pegado al tablero, así que empiezo por ahí.\n\nCon el ajedrez cada partida se abre distinto pero el objetivo es siempre el mismo: llegar al rey. Contigo me pasa parecido — da igual el día que tengamos, la ciudad en la que estemos o el idioma en el que hablemos por videollamada, la jugada siempre acaba apuntando al mismo sitio: a ti.\n\nEsto no es jaque mate todavía. Sigue la ruta del Log Pose.'
     },
     mus: {
-      tag: 'ISLA 5 · ÓRDAGO',
+      tag: 'ISLA 6 · ÓRDAGO',
       title: 'Sin ir de farol',
       msg: 'Sé que estás aprendiendo a jugar al mus, así que aquí va la verdad sin farol ninguno, ni Haki de observación:\n\nTe echo de menos. En serio, en serio. No como frase bonita, sino como esas tardes en las que miro el móvil sin darme cuenta esperando que me escribas.\n\nÓrdago a la felicidad: contigo, siempre lo igualo.'
     },
     milan: {
-      tag: 'ISLA 6 · COORDENADAS',
+      tag: 'ISLA 7 · COORDENADAS',
       title: 'La isla más lejana',
       msg: 'Milán queda lejos en el mapa, pero raramente lo siento tan lejos cuando hablamos.\n\nMe alegra un montón que estés viviendo esta aventura, conociendo la ciudad, aprendiendo cosas nuevas — aunque eso signifique más kilómetros entre los dos. Cuenta esto como una bandera pirata clavada en el mapa: aquí estuviste, aquí sigo pensando en ti todos los días.'
     },
@@ -609,7 +622,7 @@
   ];
   function openMilan() {
     let i = 0, score = 0;
-    setTag('ISLA 6 · RETO'); setTitle('Navegando por Milán');
+    setTag('ISLA 7 · RETO'); setTitle('Navegando por Milán');
     function renderQ() {
       const q = milanQuiz[i];
       cardBody.innerHTML = `
@@ -639,6 +652,57 @@
         <div class="game-hint" style="font-size: 1.1rem;">Acertaste ${score} de ${milanQuiz.length}.</div>
         <button class="btn gold" style="width:100%; margin-top:1rem;" id="revealMilan">Ver mensaje</button>`;
       document.getElementById('revealMilan').addEventListener('click', () => { markDone('milan'); showMessage('milan'); });
+    }
+    renderQ();
+    openOverlay();
+  }
+
+  /* ---------- PIEZA ---------- */
+  const sky2 = '<rect width="200" height="120" fill="#bcd3e0"/>';
+  const SC2 = [
+    () => `<img src="duomo.jpeg" alt="Duomo di Milano">`,
+    () => `<img src="https://pohcdn.com/sites/default/files/styles/paragraph__hero_banner__hb_image__1880bp/public/hero_banner/Gallery-of-Victor-Emmanuel-II.jpg" alt="Galleria Vittorio Emanuele II">`,
+    () => `<img src="https://tse3.mm.bing.net/th/id/OIP.yyi5pgQQHIBw9xKADVoq8wHaFR?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Castello Sforzesco">`,
+    () => `<img src="lago.jpeg" alt="Lago di Como">`
+  ];
+  const piezas = [
+    { i: 0, opts: ['Sí', 'No'], a: 1 },
+    { i: 1, opts: ['Sí', 'No'], a: 1 },
+    { i: 2, opts: ['Sí', 'No'], a: 1 },
+    { i: 3, opts: ['Sí', 'No'], a: 1 },
+  ];
+  function openPiece() {
+    let i = 0, score = 0;
+    setTag('ISLA 5 · RETO'); setTitle('Encuentra al imitador');
+    function renderQ() {
+      const q = piezas[i];
+      cardBody.innerHTML = `
+        <div class="game-hint">Foto ${i + 1} de ${piezas.length} · ¿este dibujo es mío?</div>
+        <div class="svgbox">${SC2[q.i]()}</div>
+        <div class="quiz-opts" id="opts"></div>`;
+      const optsEl = document.getElementById('opts');
+      q.opts.forEach((opt, idx) => {
+        const b = document.createElement('button');
+        b.className = 'btn'; b.textContent = opt;
+        b.addEventListener('click', () => {
+          [...optsEl.children].forEach(c => c.disabled = true);
+          if (idx === q.a) { b.classList.add('correct'); score++; }
+          else { b.classList.add('wrong'); optsEl.children[q.a].classList.add('correct'); }
+          const next = document.createElement('button');
+          next.className = 'btn gold'; next.style.marginTop = '1rem';
+          next.style.width = '100%';
+          next.textContent = i === piezas.length - 1 ? 'Ver resultado' : 'Siguiente';
+          next.addEventListener('click', () => { i++; i < piezas.length ? renderQ() : renderResult(); });
+          cardBody.appendChild(next);
+        });
+        optsEl.appendChild(b);
+      });
+    }
+    function renderResult() {
+      cardBody.innerHTML = `
+        <div class="game-hint" style="font-size: 1.1rem;">Acertaste ${score} de ${piezas.length}.</div>
+        <button class="btn gold" style="width:100%; margin-top:1rem;" id="revealPiece">Ver mensaje</button>`;
+      document.getElementById('revealPiece').addEventListener('click', () => { markDone('piece'); showMessage('piece'); });
     }
     renderQ();
     openOverlay();
@@ -734,6 +798,7 @@
   function open(id) {
     if (visited.has(id)) { showMessage(id); openOverlay(); return; }
     if (id === 'sevilla') return openSevilla();
+    if (id === 'piece') return openPiece();
     if (id === 'ajedrez') return openChess();
     if (id === 'cerveza') return openBeer();
     if (id === 'mus') return openMus();
