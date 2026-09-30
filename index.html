@@ -247,8 +247,8 @@
   }
 
   .glass { width: 92px; height: 150px; border: 3px solid var(--ink); border-radius: 0 0 14px 14px; position: relative; overflow: hidden; margin: 0 auto 0.8rem; background: rgba(255,255,255,0.4); }
-  .liquid { position: absolute; bottom: 0; left: 0; right: 0; height: 0; background: #e0a526; }
-  .foam { position: absolute; top: -7px; left: 0; right: 0; height: 9px; background: #fff; border-radius: 4px 4px 0 0; }
+  .liquid { position: absolute; bottom: 0; left: 0; right: 0; height: 0; background: #fdfbf7; border-top: 2px solid rgba(0,0,0,0.1); }
+  .foam { position: absolute; top: -7px; left: 0; right: 0; height: 9px; background: transparent; }
   .tband { position: absolute; left: 0; right: 0; background: rgba(30,77,67,0.3); border-top: 2px solid var(--sea); border-bottom: 2px solid var(--sea); pointer-events: none; }
   .holdbtn { width: 100%; padding: 1rem; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; text-align: center; }
 
@@ -257,6 +257,82 @@
   footer { text-align: center; margin-top: 2.5rem; font-size: 0.8rem; color: var(--ink); font-family: 'JetBrains Mono', monospace; font-weight: bold; opacity: 0.8; }
 
   @media (prefers-reduced-motion: reduce) { .island { transition: none; } }
+
+  /* Carteles Wanted */
+  .wanted-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    margin: 3rem auto;
+    max-width: 600px;
+  }
+  .wanted-poster {
+    background: #dfc89d;
+    border: 2px solid var(--ink);
+    padding: 0.8rem;
+    width: 220px;
+    box-shadow: 3px 4px 10px rgba(0,0,0,0.3);
+    font-family: 'IM Fell English', serif;
+    color: var(--ink);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: rotate(-2deg);
+    transition: transform 0.2s;
+  }
+  .wanted-poster:nth-child(2) {
+    transform: rotate(3deg);
+  }
+  .wanted-poster:hover {
+    transform: scale(1.05) rotate(0);
+    z-index: 10;
+  }
+  .wanted-poster::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid var(--ink);
+    pointer-events: none;
+  }
+  .wanted-header {
+    font-size: 2.2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin: 0;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .wanted-sub {
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    margin: 2px 0 8px;
+    font-weight: bold;
+  }
+  .wanted-img {
+    width: 100%;
+    height: 150px;
+    background: var(--parchment);
+    border: 2px solid var(--ink);
+    object-fit: cover;
+    margin-bottom: 8px;
+    filter: sepia(0.4) contrast(1.1);
+  }
+  .wanted-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 4px 0;
+    letter-spacing: 1px;
+  }
+  .wanted-bounty {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
 </style>
 </head>
 <body>
@@ -286,6 +362,14 @@
       </div>
     </div>
 
+    <div class="island" data-id="venecia" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">🌊</div>
+      <div class="isle-text">
+        <h2>Arco de Venecia</h2>
+        <p>Capítulos 227-273</p>
+      </div>
+    </div>
+
     <div class="island" data-id="ajedrez" tabindex="0" role="button" aria-haspopup="dialog">
       <div class="isle-icon">♟️</div>
       <div class="isle-text">
@@ -294,11 +378,27 @@
       </div>
     </div>
 
-    <div class="island" data-id="cerveza" tabindex="0" role="button" aria-haspopup="dialog">
-      <div class="isle-icon">🍻</div>
+    <div class="island" data-id="enel" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">⚡</div>
+      <div class="isle-text">
+        <h2>Isla del Dios</h2>
+        <p>Enel, el Eminem de One Piece</p>
+      </div>
+    </div>
+
+    <div class="island" data-id="sake" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">🍶</div>
       <div class="isle-text">
         <h2>Isla de la Taberna</h2>
-        <p>Una buena jarra bien fría</p>
+        <p>Un buen sake tradicional</p>
+      </div>
+    </div>
+
+    <div class="island" data-id="sogeking" tabindex="0" role="button" aria-haspopup="dialog">
+      <div class="isle-icon">🎯</div>
+      <div class="isle-text">
+        <h2>Isla del Francotirador</h2>
+        <p>Sogeking y su Bin's Sake</p>
       </div>
     </div>
 
@@ -326,10 +426,28 @@
       </div>
     </div>
 
-    <div class="treasure locked" id="treasure" tabindex="0" role="button" aria-haspopup="dialog">
+    <div class="treasure locked" id="treasure" tabindex="0" role="button" aria-haspopup="dialog"><div class="treasure locked" id="treasure" tabindex="0" role="button" aria-haspopup="dialog">
       <div class="isle-icon">👑</div>
       <h2>Nuestro propio One Piece</h2>
       <p>Solo quien conquiste la ruta podrá abrirlo</p>
+    </div>
+  </div>
+
+  
+  <div class="wanted-container">
+    <div class="wanted-poster">
+      <h2 class="wanted-header">WANTED</h2>
+      <p class="wanted-sub">DEAD OR ALIVE</p>
+      <img src="byak.jpeg" class="wanted-img" alt="Byak">
+      <div class="wanted-name">BYAK</div>
+      <div class="wanted-bounty"><span>B</span> 500,000,000</div>
+    </div>
+    <div class="wanted-poster">
+      <h2 class="wanted-header">WANTED</h2>
+      <p class="wanted-sub">DEAD OR ALIVE</p>
+      <img src="pelirroja.jpeg" class="wanted-img" alt="Bayeta">
+      <div class="wanted-name">BAYETA A.K.A PELIRROJA</div>
+      <div class="wanted-bounty"><span>B</span> 30,000,000</div>
     </div>
   </div>
 
@@ -349,13 +467,29 @@
 
 <script>
   const content = {
-    cerveza: {
-      tag: 'ISLA 4 · SAKE',
+    
+    sake: {
+      tag: 'ISLA 6 · SAKE',
       title: 'Salud, Nakama',
-      msg: 'Sabía que la caña bien tirada no se te iba a resistir.\n\nCuando vuelvas, la primera ronda va por mi cuenta. Y la segunda también, si me cuentas todo lo que has probado por Italia.\n\nMientras tanto, brindo por ti desde aquí, como unos buenos piratas. ¡Salud!'
+      msg: 'Sabía que el sake bien servido no se te iba a resistir.\nCuando vuelvas, la primera ronda va por mi cuenta. Y la segunda también, si me cuentas todo lo que has probado por Italia.\nMientras tanto, brindo por ti desde aquí, como unos buenos piratas. ¡Salud!'
+    },
+    venecia: {
+      tag: 'ISLA 3 · VENECIA',
+      title: 'Arco de Venecia',
+      msg: 'Capítulos 227-273.\nNavegando por canales infinitos y misterios, como en el famoso Arco de Venecia de One Piece. Un recordatorio de que las mejores aventuras siempre tienen agua de por medio.'
+    },
+    enel: {
+      tag: 'ISLA 5 · DIOS',
+      title: 'El Eminem de One Piece',
+      msg: 'Enel, el personaje que tiene una gran similitud a Eminem.\n"I\'m beginning to feel like a Rap God, Rap God..." ¡Y vaya si lo es con ese poder del rayo! A veces los villanos tienen el mejor flow de Grand Line.'
+    },
+    sogeking: {
+      tag: 'ISLA 7 · SOGEKING',
+      title: 'Bin\'s Sake',
+      msg: 'El legendario Sogeking cantando su famosa canción Bin\'s Sake.\nEn la Isla del Francotirador, donde nace en tu corazón... ¡Lululu lulu lala! Un himno pirata para levantar el ánimo.'
     },
     pieza: {
-      tag: 'ISLA 5 · ARTE',
+      tag: 'ISLA 8 · ARTE',
       title: 'El ladrón',
       msg: ''
     },
@@ -365,17 +499,17 @@
       msg: 'Lo has acertado todo, como no podía ser de otra manera.\n\nY es que en Sevilla no hay rincón que no me recuerde a ti: los sitios donde hemos comido, los bares donde hemos brindado, el italiano de nuestra primera cita como novios y hasta mi cama, que ahora mismo está demasiado vacía.\n\nToda la ciudad me recuerda a ti. Y ahora sí, zarpamos hacia Milán.'
     },
     ajedrez: {
-      tag: 'ISLA 3 · JAQUE',
+      tag: 'ISLA 4 · JAQUE',
       title: 'La apertura',
       msg: 'Últimamente vives pegado al tablero, así que empiezo por ahí.\n\nCon el ajedrez cada partida se abre distinto pero el objetivo es siempre el mismo: llegar al rey. Contigo me pasa parecido — da igual el día que tengamos, la ciudad en la que estemos o el idioma en el que hablemos por videollamada, la jugada siempre acaba apuntando al mismo sitio: a ti.\n\nEsto no es jaque mate todavía. Sigue la ruta del Log Pose.'
     },
     mus: {
-      tag: 'ISLA 6 · ÓRDAGO',
+      tag: 'ISLA 9 · ÓRDAGO',
       title: 'Sin ir de farol',
       msg: 'Sé que estás aprendiendo a jugar al mus, así que aquí va la verdad sin farol ninguno, ni Haki de observación:\n\nTe echo de menos. En serio, en serio. No como frase bonita, sino como esas tardes en las que miro el móvil sin darme cuenta esperando que me escribas.\n\nÓrdago a la felicidad: contigo, siempre lo igualo.'
     },
     milan: {
-      tag: 'ISLA 7 · COORDENADAS',
+      tag: 'ISLA 10 · COORDENADAS',
       title: 'La isla más lejana',
       msg: 'Milán queda lejos en el mapa, pero raramente lo siento tan lejos cuando hablamos.\n\nMe alegra un montón que estés viviendo esta aventura, conociendo la ciudad, aprendiendo cosas nuevas — aunque eso signifique más kilómetros entre los dos. Cuenta esto como una bandera pirata clavada en el mapa: aquí estuviste, aquí sigo pensando en ti todos los días.'
     },
@@ -657,7 +791,109 @@
     openOverlay();
   }
 
+    /* ---------- VENECIA ---------- */
+  const venRounds = [
+    { q: 'Ronda 1 · ¿Qué medio de transporte se usa por los canales de Water 7?', opts: ['Yagara Bulls', 'Góndolas', 'Waver', 'Sea Train'], a: 0 },
+    { q: 'Ronda 2 · ¿Cómo se llama el famoso tren marítimo?', opts: ['Rocketman', 'Puffing Tom', 'Umi Ressha', 'Aqua Laguna'], a: 1 },
+    { q: 'Ronda 3 · En los capítulos 227-273 fuimos al cielo... ¿Cómo se llama el mar de nubes?', opts: ['Mar de Plata', 'Mar Azul', 'All Blue', 'Mar Blanco'], a: 3 }
+  ];
+  function openVenecia() {
+    let i = 0;
+    setTag('ISLA 3 · RETO'); setTitle('Misterios de Venecia');
+    function renderQ() {
+      const q = venRounds[i];
+      cardBody.innerHTML = `
+        <div class="game-hint">Pregunta ${i + 1} de ${venRounds.length}</div>
+        <div class="quiz-clue">${q.q}</div>
+        <div class="quiz-opts" id="opts"></div>
+        <div class="feedback" id="venFb"></div>`;
+      const optsEl = document.getElementById('opts'), fb = document.getElementById('venFb');
+      q.opts.forEach((opt, idx) => {
+        const b = document.createElement('button');
+        b.className = 'btn'; b.textContent = opt;
+        b.addEventListener('click', () => {
+          if (idx !== q.a) { b.classList.add('wrong'); b.disabled = true; fb.textContent = 'Mmm, esa no es. Sigue intentando.'; fb.className = 'feedback bad'; return; }
+          [...optsEl.children].forEach(c => c.disabled = true);
+          b.classList.add('correct'); fb.textContent = '¡Correcto!'; fb.className = 'feedback';
+          const next = document.createElement('button');
+          next.className = 'btn gold'; next.style.marginTop = '0.4rem';
+          next.style.width = '100%';
+          next.textContent = i === venRounds.length - 1 ? 'Ver mensaje' : 'Siguiente';
+          next.addEventListener('click', () => {
+            if (i === venRounds.length - 1) { markDone('venecia'); showMessage('venecia'); }
+            else { i++; renderQ(); }
+          });
+          cardBody.appendChild(next);
+        });
+        optsEl.appendChild(b);
+      });
+    }
+    renderQ();
+    openOverlay();
+  }
+
+  /* ---------- ENEL ---------- */
+  const enelRounds = [
+    { q: 'Ronda 1 · I\'m beginning to feel like a...', opts: ['Rap God', 'Thunder God', 'Pirate God', 'Eminem'], a: 0 },
+    { q: 'Ronda 2 · ¿Cuántos voltios tiene el ataque máximo de Enel?', opts: ['100 mil', '1 millón', '200 millones', 'Infinito'], a: 2 },
+    { q: 'Ronda 3 · ¿Qué material es el enemigo natural de su poder?', opts: ['Madera', 'Acero', 'Oro', 'Goma'], a: 3 }
+  ];
+  function openEnel() {
+    let i = 0;
+    setTag('ISLA 5 · RETO'); setTitle('El Dios del Rap');
+    function renderQ() {
+      const q = enelRounds[i];
+      cardBody.innerHTML = `
+        <div class="game-hint">Batalla de rimas y rayos ${i + 1}/${enelRounds.length}</div>
+        <div class="quiz-clue">${q.q}</div>
+        <div class="quiz-opts" id="opts"></div>
+        <div class="feedback" id="enelFb"></div>`;
+      const optsEl = document.getElementById('opts'), fb = document.getElementById('enelFb');
+      q.opts.forEach((opt, idx) => {
+        const b = document.createElement('button');
+        b.className = 'btn'; b.textContent = opt;
+        b.addEventListener('click', () => {
+          if (idx !== q.a) { b.classList.add('wrong'); b.disabled = true; fb.textContent = '¡ZAAAP! Respuesta incorrecta.'; fb.className = 'feedback bad'; return; }
+          [...optsEl.children].forEach(c => c.disabled = true);
+          b.classList.add('correct'); fb.textContent = '¡Flow divino! Correcto.'; fb.className = 'feedback';
+          const next = document.createElement('button');
+          next.className = 'btn gold'; next.style.marginTop = '0.4rem';
+          next.style.width = '100%';
+          next.textContent = i === enelRounds.length - 1 ? 'Ver mensaje' : 'Siguiente';
+          next.addEventListener('click', () => {
+            if (i === enelRounds.length - 1) { markDone('enel'); showMessage('enel'); }
+            else { i++; renderQ(); }
+          });
+          cardBody.appendChild(next);
+        });
+        optsEl.appendChild(b);
+      });
+    }
+    renderQ();
+    openOverlay();
+  }
+
+    /* ---------- SOGEKING ---------- */
+  function openSogeking() {
+    setTag('ISLA 7 · RETO'); setTitle('El himno pirata');
+    cardBody.innerHTML = `
+      <div class="game-hint">Escucha la melodía de Bin's Sake antes de continuar.</div>
+      <div style="margin-bottom: 1rem; border: 2px solid var(--ink); border-radius: 4px; overflow: hidden; background: #000; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+        <div id="vidContainer">
+          <video src="bins_sake.mp4" style="width: 100%; display: block;" controls playsinline preload="metadata">Tu navegador no soporta el reproductor de video.</video>
+        </div>
+      </div>
+      <button class="btn" style="width: 100%; margin-bottom: 0.8rem; background: var(--sea); color: #fff;" onclick="window.open('https://youtu.be/8C3t1Q_na8w?si=p4Wk1-nCLINEHoIw', '_blank')">¿El vídeo se ve en negro? Míralo en YouTube</button>
+      <button class="btn gold" style="width: 100%;" id="sogekingBtn">Ver mensaje</button>
+    `;
+    document.getElementById('sogekingBtn').addEventListener('click', () => {
+      markDone('sogeking'); showMessage('sogeking');
+    });
+    openOverlay();
+  }
+
   /* ---------- PIEZA ---------- */
+
   const sky2 = '<rect width="200" height="120" fill="#bcd3e0"/>';
   const SC2 = [
     () => `<img src="duomo.jpeg" alt="Duomo di Milano">`,
@@ -750,9 +986,9 @@
     openOverlay();
   }
 
-  /* ---------- CERVEZA ---------- */
-  function openBeer() {
-    setTag('ISLA 4 · RETO'); setTitle('La caña perfecta');
+  /* ---------- SAKE ---------- */
+  function openSake() {
+    setTag('ISLA 4 · RETO'); setTitle('La isla del sake perfecto');
     let streak = 0, level = 0, raf = null, last = 0, holding = false, busy = false, target = 80;
     cardBody.innerHTML = `
       <div class="game-hint">Mantén pulsado para servir y suelta con el nivel dentro de la franja verde. 3 seguidas para ganar.</div>
@@ -776,8 +1012,8 @@
       else if (Math.abs(level - target) <= 4) {
         streak++; fb.className = 'feedback';
         if (streak >= 3) {
-          fb.textContent = '¡Tres cañas perfectas!';
-          btn.replaceWith(Object.assign(document.createElement('button'), { className: 'btn gold', style: 'width:100%', textContent: 'Ver mensaje', onclick: () => { markDone('cerveza'); showMessage('cerveza'); } }));
+          fb.textContent = '¡Tres sakes perfectos!';
+          btn.replaceWith(Object.assign(document.createElement('button'), { className: 'btn gold', style: 'width:100%', textContent: 'Ver mensaje', onclick: () => { markDone('sake'); showMessage('sake'); } }));
           return;
         }
         fb.textContent = `¡Perfecta! Seguidas: ${streak}/3`;
@@ -798,9 +1034,12 @@
   function open(id) {
     if (visited.has(id)) { showMessage(id); openOverlay(); return; }
     if (id === 'sevilla') return openSevilla();
-    if (id === 'piece') return openPiece();
+    if (id === 'venecia') return openVenecia();
     if (id === 'ajedrez') return openChess();
-    if (id === 'cerveza') return openBeer();
+    if (id === 'enel') return openEnel();
+    if (id === 'sake') return openSake();
+    if (id === 'sogeking') return openSogeking();
+    if (id === 'piece') return openPiece();
     if (id === 'mus') return openMus();
     if (id === 'milan') return openMilan();
     markDone(id); showMessage(id); openOverlay();
@@ -822,3 +1061,4 @@
 </script>
 </body>
 </html>
+
